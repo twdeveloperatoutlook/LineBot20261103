@@ -59,7 +59,7 @@ namespace isRock.Template
 
     public class LLM
     {
-        const string OpenAIKey = "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"; //👉repleace it with your OpenAI API Key
+        const string OpenAIKey = "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"; //👉repleace it with your OpenAI API Key
 
         const string GitHubModelKey = "👉github_pat____________"; //👉repleace it with your GitHub Models API Key
 
