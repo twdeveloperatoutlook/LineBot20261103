@@ -17,12 +17,12 @@ namespace isRock.Template
         [HttpPost]
         public IActionResult POST()
         {
-            const string AdminUserId = "U5291d50250851c7aeb372c14297d3930"; //👉repleace it with your Admin User Id
+            const string AdminUserId = "___________________"; //👉repleace it with your Admin User Id
 
             try
             {
                 //設定ChannelAccessToken
-                this.ChannelAccessToken = "Xo4aXZhiiyx925PXbX1WiOvL5TMS6WgwUnMZbC1dtAwQ/TO6pkCtXR9YiPLEJ1gq3mGyU1wa7fKAVAvy70+ZF78Cn/3lQSfkcb4+SLR8zlnEx1CSz7wKC1ZcfAq3VgUo6e1UzncTQ90jukjPQS7WaQdB04t89/1O/w1cDnyilFU="; //👉repleace it with your Channel Access Token
+                this.ChannelAccessToken = "____________________________"; //👉repleace it with your Channel Access Token
                 //配合Line Verify
                 if (
                     ReceivedMessage?.events?.Count() <= 0
@@ -36,7 +36,19 @@ namespace isRock.Template
                 //準備回覆訊息
                 if (LineEvent.type.ToLower() == "message" && LineEvent.message.type == "text")
                 {
-                    responseMsg = LLM.getResponse(LineEvent.message.text);
+                    if (LineEvent.message.text.Contains("/reset"))
+                    {
+                        ChatHistoryManager.DeleteIsolatedStorageFile();
+                        responseMsg = "我已經把之前的對談都給忘了!";
+                    }
+                    else
+                    {
+                        var chatHistory = ChatHistoryManager.GetMessagesFromIsolatedStorage(LineEvent.source.userId);
+                        responseMsg = ChatGPT.getResponseFromGPT(LineEvent.message.text, chatHistory);
+                        //儲存聊天紀錄
+                        ChatHistoryManager.SaveMessageToIsolatedStorage(
+                            System.DateTime.Now, LineEvent.source.userId, LineEvent.message.text, responseMsg);
+                    }
                 }
                 else if (LineEvent.type.ToLower() == "message")
                     responseMsg = $"收到 event : {LineEvent.type} type: {LineEvent.message.type} ";
